@@ -25,6 +25,13 @@ package org.billthefarmer.currency;
 
 import android.os.AsyncTask;
 
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+
+import java.net.URL;
+
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -78,6 +85,120 @@ public class Data
         return map;
     }
 
+    // Start list task
+    protected void startListTask(String url)
+    {
+        ListTask listTask = new ListTask();
+        listTask.execute(url);
+    }
+
+    // ListTask class
+    protected class ListTask
+        extends AsyncTask<String, String, Map<String, Double>>
+    {
+        // The system calls this to perform work in a worker thread
+        // and delivers it the parameters given to AsyncTask.execute()
+        @Override
+        protected Map<String, Double> doInBackground(String... urls)
+        {
+            Map<String, Double> map = new HashMap<String, Double>();
+            InputStream stream = null;
+            BufferedReader reader = null; 
+            String date = null;
+
+            try
+            {
+                URL url = new URL(urls[0]);
+                stream = url.openStream();
+                reader = new BufferedReader(new InputStreamReader(stream));
+                String line;
+                do
+                {
+                    line = reader.readLine();
+                    if (line.matches("[0-9]2-[a-zA-Z]3-[0-9]2"))
+                        date = line;
+
+                    else
+                    {
+                        String fields[] = line.split("\t");
+                        if (fields.length == 3)
+                        {
+                            Double rate;
+
+                            try
+                            {
+                                rate = Double.parseDouble(fields[2]);
+                            }
+
+                            catch (Exception e)
+                            {
+                                rate = 1.0;
+                            }
+
+                            if (fields[1] == "")
+                            {
+                                map.put(fields[0], rate);
+                            }
+
+                            else if (fields[1] == "1")
+                            {
+                                map.put(fields[0], rate / 1.0);
+                            }
+                        }
+                    }
+                } while (line != null);
+            }
+
+            catch (Exception e)
+            {
+                map.clear();
+            }
+
+            finally
+            {
+                if (reader != null)
+                {
+                    try
+                    {
+                        reader.close();
+                    }
+
+                    catch (Exception e) {}
+                }
+
+                else if (stream != null)
+                {
+                    try
+                    {
+                        stream.close();
+                    }
+
+                    catch (Exception e) {}
+                }
+            }
+
+            publishProgress(date);
+            return map;
+        }
+
+        // On progress update
+        @Override
+        protected void onProgressUpdate(String... date)
+        {
+            if (callbacks != null)
+                callbacks.onProgressUpdate(date);
+        }
+
+        // The system calls this to perform work in the UI thread and
+        // delivers the result from doInBackground()
+        @Override
+        protected void onPostExecute(Map<String, Double> map)
+        {
+            if (callbacks != null)
+                callbacks.onPostExecute(map);
+        }
+    }
+
     // Start parse task
     protected void startParseTask(String url)
     {
@@ -94,7 +215,7 @@ public class Data
         // The system calls this to perform work in a worker thread
         // and delivers it the parameters given to AsyncTask.execute()
         @Override
-        protected Map doInBackground(String... urls)
+        protected Map<String, Double> doInBackground(String... urls)
         {
             // Get a parser
             Parser parser = new Parser();
