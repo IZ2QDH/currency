@@ -24,6 +24,7 @@
 package org.billthefarmer.currency;
 
 import android.os.AsyncTask;
+import android.util.Log;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
@@ -38,6 +39,8 @@ import java.util.Map;
 // Data class
 public class Data
 {
+    public static final String TAG = "Data";
+
     private static Data instance;
 
     private Map<String, Double> map;
@@ -115,7 +118,11 @@ public class Data
                 do
                 {
                     line = reader.readLine();
-                    if (line.matches("[0-9]2-[a-zA-Z]3-[0-9]2"))
+
+                    if (BuildConfig.DEBUG)
+                        Log.d(TAG, line);
+
+                    if (line.matches("[0-9]2\\-[a-zA-Z]3\\-[0-9]2"))
                         date = line;
 
                     else
@@ -124,29 +131,36 @@ public class Data
                         if (fields.length == 3)
                         {
                             Double rate;
+                            String key = fields[0];
+                            String note = fields[1];
+                            String value = fields[2];
 
-                            if (fields[2].equals("---"))
+                            if (value.equals("---"))
                                 continue;
 
                             try
                             {
-                                rate = Double.parseDouble(fields[2]);
+                                rate = Double.parseDouble(value);
                             }
 
                             catch (Exception e)
                             {
-                                rate = 1.0;
+                                continue;
                             }
 
-                            if (fields[1] == "")
+                            if (note.length() == 0)
                             {
-                                map.put(fields[0], rate);
+                                map.put(key, rate);
                             }
 
-                            else if (fields[1] == "1")
+                            else if (note.equals("1"))
                             {
-                                map.put(fields[0], rate / 1.0);
+                                map.put(key, 1.0 / rate);
                             }
+
+                            if (BuildConfig.DEBUG)
+                                Log.d(TAG, key + "/" + map.get(key));
+
                         }
                     }
                 } while (line != null);

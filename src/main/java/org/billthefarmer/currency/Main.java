@@ -626,7 +626,7 @@ public class Main extends Activity
 
         // Start the task
         if (instance != null)
-            instance.startListTask(ECB_DAILY_URL);
+            instance.startListTask(IMF_DAILY_URL);
     }
 
     // On pause
@@ -910,6 +910,10 @@ public class Main extends Activity
         // Start the task
         if (instance != null)
             instance.startParseTask(ECB_DAILY_URL);
+
+        // Start the task
+        if (instance != null)
+            instance.startListTask(IMF_DAILY_URL);
 
         return true;
     }
