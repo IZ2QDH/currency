@@ -82,8 +82,48 @@ public class Main extends Activity
         "USD", "GBP", "CAD", "AUD"
     };
 
-    // Currency names
-    public static final String CURRENCY_NAMES[] =
+    // IMF currency names
+    public static final String IMF_NAMES[] =
+    {
+        "Chinese Yuan", "Euro", "Japanese Yen",
+        "U.K. Pound Sterling", "U.S. Dollar", "Algerian Dinar",
+        "Australian Dollar", "Bahrain Dinar", "Botswana Pula",
+        "Brazilian Real", "Brunei Dollar", "Canadian Dollar",
+        "Chilean Peso", "Colombian Peso", "Czech Koruna",
+        "Danish Krone", "Hungarian Forint", "Icelandic Krona",
+        "Indian Rupee", "Indonesian Rupiah", "Iranian Rial",
+        "Israeli New Sheqel", "Kazakhstani Tenge", "Korean Won",
+        "Kuwaiti Dinar", "Libyan Dinar", "Malaysian Ringgit",
+        "Mauritian Rupee", "Mexican Peso", "Nepalese Rupee",
+        "New Zealand Dollar", "Norwegian Krone", "Rial Omani",
+        "Pakistani Rupee", "Nuevo Sol", "Philippine Peso",
+        "Polish Zloty", "Qatar Riyal", "Russian Ruble",
+        "Saudi Arabian Riyal", "Singapore Dollar", "South African Rand",
+        "Sri Lanka Rupee", "Swedish Krona", "Swiss Franc",
+        "Thai Baht", "Trinidad And Tobago Dollar", "Tunisian Dinar",
+        "U.A.E. Dirham", "Peso Uruguayo", "Bolivar Fuerte"
+    };
+
+    // IMF currency codes
+    public static final String IMF_CODES[] =
+    {
+        "CNY", "EUR", "JPY", "GBP",
+        "USD", "DZD", "AUD", "BHD",
+        "BWP", "BRL", "BND", "CAD",
+        "CLP", "COP", "CZK", "DKK",
+        "HUF", "ISK", "INR", "IDR",
+        "IRR", "ILS", "KZT", "KRW",
+        "KWD", "LYD", "MYR", "MUR",
+        "MXN", "NPR", "NZD", "NOK",
+        "OMR", "PKR", "PEN", "PHP",
+        "PLN", "QAR", "RUB", "SAR",
+        "SGD", "ZAR", "LKR", "SEK",
+        "CHF", "THB", "TTD", "TND",
+        "AED", "UYU", "VEF"
+    };
+
+    // Currency codes
+    public static final String CURRENCY_CODES[] =
     {
         "EUR", "USD", "JPY", "BGN",
         "CZK", "DKK", "GBP", "HUF",
@@ -109,7 +149,7 @@ public class Main extends Activity
     };
 
     // Currency long names
-    public static final Integer CURRENCY_LONGNAMES[] =
+    public static final Integer CURRENCY_NAMES[] =
     {
         R.string.long_eur, R.string.long_usd, R.string.long_jpy,
         R.string.long_bgn, R.string.long_czk, R.string.long_dkk,
@@ -163,6 +203,8 @@ public class Main extends Activity
 
     public static final String ECB_DAILY_URL =
         "http://www.ecb.europa.eu/stats/eurofxref/eurofxref-daily.xml";
+    public static final String IMF_DAILY_URL =
+        "http://www.imf.org/external/np/fin/data/rms_rep.aspx?tsvflag=Y";
 
     protected final static String CHOICE = "choice";
 
@@ -193,13 +235,13 @@ public class Main extends Activity
 
     private Data instance;
 
-    private List<String> currencyNameList;
+    private List<String> currencyCodeList;
 
     private List<Integer> flagList;
-    private List<String> nameList;
+    private List<String> codeList;
     private List<String> symbolList;
     private List<String> valueList;
-    private List<Integer> longNameList;
+    private List<Integer> nameList;
 
     private List<Integer> selectList;
     private Map<String, Double> valueMap;
@@ -257,14 +299,14 @@ public class Main extends Activity
         }
 
         // Create currency name list
-        currencyNameList = Arrays.asList(CURRENCY_NAMES);
+        currencyCodeList = Arrays.asList(CURRENCY_CODES);
 
         // Create lists
         flagList = new ArrayList<Integer>();
-        nameList = new ArrayList<String>();
+        codeList = new ArrayList<String>();
         symbolList = new ArrayList<String>();
         valueList = new ArrayList<String>();
-        longNameList = new ArrayList<Integer>();
+        nameList = new ArrayList<Integer>();
 
         // Check instance
         if (instance != null)
@@ -282,8 +324,8 @@ public class Main extends Activity
             mode = Main.SELECT_MODE;
 
         // Create the adapter
-        adapter = new CurrencyAdapter(this, R.layout.item, flagList, nameList,
-                                      symbolList, valueList, longNameList,
+        adapter = new CurrencyAdapter(this, R.layout.item, flagList, codeList,
+                                      symbolList, valueList, nameList,
                                       selectList);
         // Set the list view adapter
         if (listView != null)
@@ -340,11 +382,11 @@ public class Main extends Activity
         if (flagView != null)
             flagView.setImageResource(CURRENCY_FLAGS[currentIndex]);
         if (nameView != null)
-            nameView.setText(CURRENCY_NAMES[currentIndex]);
+            nameView.setText(CURRENCY_CODES[currentIndex]);
         if (symbolView != null)
             symbolView.setText(CURRENCY_SYMBOLS[currentIndex]);
         if (longNameView != null)
-            longNameView.setText(CURRENCY_LONGNAMES[currentIndex]);
+            longNameView.setText(CURRENCY_NAMES[currentIndex]);
 
         // Set current value
         numberFormat.setGroupingUsed(false);
@@ -447,9 +489,9 @@ public class Main extends Activity
             {
                 // Update name list from JSON array
                 JSONArray namesArray = new JSONArray(namesJSON);
-                nameList.clear();
+                codeList.clear();
                 for (int i = 0; !namesArray.isNull(i); i++)
-                    nameList.add(namesArray.getString(i));
+                    codeList.add(namesArray.getString(i));
             }
 
             catch (Exception e)
@@ -461,7 +503,7 @@ public class Main extends Activity
         // Use the default list
         else
         {
-            nameList.addAll(Arrays.asList(CURRENCY_LIST));
+            codeList.addAll(Arrays.asList(CURRENCY_LIST));
         }
 
         // Get the saved value list
@@ -488,7 +530,7 @@ public class Main extends Activity
             valueList.clear();
 
             // Format each value
-            for (String name : nameList)
+            for (String name : codeList)
             {
                 Double v = valueMap.get(name);
                 value = numberFormat.format(v);
@@ -499,11 +541,11 @@ public class Main extends Activity
         }
 
         // Get the current conversion rate
-        convertValue = valueMap.get(CURRENCY_NAMES[currentIndex]);
+        convertValue = valueMap.get(CURRENCY_CODES[currentIndex]);
 
         // Recalculate all the values
         valueList.clear();
-        for (String name : nameList)
+        for (String name : codeList)
         {
             Double v = (currentValue / convertValue) *
                 valueMap.get(name);
@@ -517,20 +559,20 @@ public class Main extends Activity
             flagList.clear();
         if (symbolList != null)
             symbolList.clear();
-        if (longNameList != null)
-            longNameList.clear();
+        if (nameList != null)
+            nameList.clear();
 
         // Populate the lists
-        for (String name : nameList)
+        for (String name : codeList)
         {
-            int index = currencyNameList.indexOf(name);
+            int index = currencyCodeList.indexOf(name);
 
             if (flagList != null)
                 flagList.add(CURRENCY_FLAGS[index]);
             if (symbolList != null)
                 symbolList.add(CURRENCY_SYMBOLS[index]);
-            if (longNameList != null)
-                longNameList.add(CURRENCY_LONGNAMES[index]);
+            if (nameList != null)
+                nameList.add(CURRENCY_NAMES[index]);
         }
 
         // Update the adapter
@@ -580,7 +622,11 @@ public class Main extends Activity
 
         // Start the task
         if (instance != null)
-            instance.startParseTask(ECB_DAILY_URL);;
+            instance.startParseTask(ECB_DAILY_URL);
+
+        // Start the task
+        if (instance != null)
+            instance.startListTask(ECB_DAILY_URL);
     }
 
     // On pause
@@ -598,7 +644,7 @@ public class Main extends Activity
 
         // Get entries
         JSONObject valueObject = new JSONObject(valueMap);
-        JSONArray nameArray = new JSONArray(nameList);
+        JSONArray nameArray = new JSONArray(codeList);
         JSONArray valueArray = new JSONArray(valueList);
 
         // Update preferences
@@ -766,19 +812,19 @@ public class Main extends Activity
 
         // Create a list of currency names to remove
         for (int i : selectList)
-            removeList.add(nameList.get(i));
+            removeList.add(codeList.get(i));
 
         for (String name : removeList)
         {
             // Look up name
-            int i = nameList.indexOf(name);
+            int i = codeList.indexOf(name);
 
             // Remove from the lists
             flagList.remove(i);
-            nameList.remove(i);
+            codeList.remove(i);
             symbolList.remove(i);
             valueList.remove(i);
-            longNameList.remove(i);
+            nameList.remove(i);
         }
 
         // Clear list and update adapter
@@ -804,8 +850,8 @@ public class Main extends Activity
         // Add the select list to the list
         for (int index : selectList)
         {
-            String name = nameList.get(index);
-            list.add(currencyNameList.indexOf(name));
+            String name = codeList.get(index);
+            list.add(currencyCodeList.indexOf(name));
         }
 
         // Put the list
@@ -944,7 +990,7 @@ public class Main extends Activity
 
         // Recalculate all the values
         valueList.clear();
-        for (String name : nameList)
+        for (String name : codeList)
         {
             Double value = (currentValue / convertValue) *
                            valueMap.get(name);
@@ -1004,7 +1050,7 @@ public class Main extends Activity
             // Recalculate all the values
             valueList.clear();
             numberFormat.setGroupingUsed(true);
-            for (String name : nameList)
+            for (String name : codeList)
             {
                 Double value = (currentValue / convertValue) *
                                valueMap.get(name);
@@ -1045,12 +1091,12 @@ public class Main extends Activity
             oldValue = currentValue;
 
             // Set the current currency from the list
-            currentIndex = currencyNameList.indexOf(nameList.get(position));
+            currentIndex = currencyCodeList.indexOf(codeList.get(position));
 
             currentValue = (oldValue / convertValue) *
-                           valueMap.get(CURRENCY_NAMES[currentIndex]);
+                           valueMap.get(CURRENCY_CODES[currentIndex]);
 
-            convertValue = valueMap.get(CURRENCY_NAMES[currentIndex]);
+            convertValue = valueMap.get(CURRENCY_CODES[currentIndex]);
 
             numberFormat.setGroupingUsed(false);
             value = numberFormat.format(currentValue);
@@ -1061,24 +1107,24 @@ public class Main extends Activity
             if (flagView != null)
                 flagView.setImageResource(CURRENCY_FLAGS[currentIndex]);
             if (nameView != null)
-                nameView.setText(CURRENCY_NAMES[currentIndex]);
+                nameView.setText(CURRENCY_CODES[currentIndex]);
             if (symbolView != null)
                 symbolView.setText(CURRENCY_SYMBOLS[currentIndex]);
             if (longNameView != null)
-                longNameView.setText(CURRENCY_LONGNAMES[currentIndex]);
+                longNameView.setText(CURRENCY_NAMES[currentIndex]);
 
             // Remove the selected currency from the lists
             flagList.remove(position);
-            nameList.remove(position);
+            codeList.remove(position);
             symbolList.remove(position);
             valueList.remove(position);
-            longNameList.remove(position);
+            nameList.remove(position);
 
             // Add the old current currency to the start of the list
             flagList.add(0, CURRENCY_FLAGS[oldIndex]);
-            nameList.add(0, CURRENCY_NAMES[oldIndex]);
+            codeList.add(0, CURRENCY_CODES[oldIndex]);
             symbolList.add(0, CURRENCY_SYMBOLS[oldIndex]);
-            longNameList.add(0, CURRENCY_LONGNAMES[oldIndex]);
+            nameList.add(0, CURRENCY_NAMES[oldIndex]);
 
             numberFormat.setGroupingUsed(true);
             value = numberFormat.format(oldValue);
@@ -1093,7 +1139,7 @@ public class Main extends Activity
             SharedPreferences.Editor editor = preferences.edit();
 
             // Get entries
-            JSONArray nameArray = new JSONArray(nameList);
+            JSONArray nameArray = new JSONArray(codeList);
             JSONArray valueArray = new JSONArray(valueList);
 
             // Update preferences
@@ -1163,16 +1209,16 @@ public class Main extends Activity
         for (int index : indexList)
         {
             // Don't add duplicates
-            if (nameList.contains(CURRENCY_NAMES[index]))
+            if (codeList.contains(CURRENCY_CODES[index]))
                 continue;
 
             flagList.add(CURRENCY_FLAGS[index]);
-            nameList.add(CURRENCY_NAMES[index]);
+            codeList.add(CURRENCY_CODES[index]);
             symbolList.add(CURRENCY_SYMBOLS[index]);
-            longNameList.add(CURRENCY_LONGNAMES[index]);
+            nameList.add(CURRENCY_NAMES[index]);
 
             Double value = (currentValue / convertValue) *
-                           valueMap.get(CURRENCY_NAMES[index]);
+                           valueMap.get(CURRENCY_CODES[index]);
 
             NumberFormat numberFormat = NumberFormat.getInstance();
             numberFormat.setMinimumFractionDigits(digits);
@@ -1190,7 +1236,7 @@ public class Main extends Activity
         SharedPreferences.Editor editor = preferences.edit();
 
         // Get entries
-        JSONArray nameArray = new JSONArray(nameList);
+        JSONArray nameArray = new JSONArray(codeList);
         JSONArray valueArray = new JSONArray(valueList);
 
         // Update preferences
@@ -1243,21 +1289,32 @@ public class Main extends Activity
         // Check the map
         if (!map.isEmpty())
         {
+            if (map.containsKey("Euro"))
+            {
+                if (BuildConfig.DEBUG)
+                {
+                    for (Map.Entry<String, Double> entry : map.entrySet())
+                        Log.d(TAG, entry.getKey() + "/" + entry.getValue());
+                }
+
+                return;
+            }
+
             valueMap = map;
 
             // Empty the value list
             valueList.clear();
 
             // Get the convert value
-            convertValue = valueMap.get(CURRENCY_NAMES[currentIndex]);
+            convertValue = valueMap.get(CURRENCY_CODES[currentIndex]);
 
             // Populate a new value list
             NumberFormat numberFormat = NumberFormat.getInstance();
             numberFormat.setMinimumFractionDigits(digits);
             numberFormat.setMaximumFractionDigits(digits);
-            for (String name : nameList)
+            for (String name : codeList)
             {
-                int index = currencyNameList.indexOf(name);
+                int index = currencyCodeList.indexOf(name);
 
                 Double value = (currentValue / convertValue) *
                                valueMap.get(name);
@@ -1276,7 +1333,7 @@ public class Main extends Activity
 
             // Get entries
             JSONObject valueObject = new JSONObject(valueMap);
-            JSONArray nameArray = new JSONArray(nameList);
+            JSONArray nameArray = new JSONArray(codeList);
             JSONArray valueArray = new JSONArray(valueList);
 
             // Update preferences

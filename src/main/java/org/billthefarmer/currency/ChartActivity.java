@@ -135,8 +135,8 @@ public class ChartActivity extends Activity
         }
 
         // Look up the names
-        firstName = Main.CURRENCY_NAMES[firstIndex];
-        secondName = Main.CURRENCY_NAMES[secondIndex];
+        firstName = Main.CURRENCY_CODES[firstIndex];
+        secondName = Main.CURRENCY_CODES[secondIndex];
 
         // Enable back navigation on action bar
         ActionBar actionBar = getActionBar();
@@ -430,8 +430,8 @@ public class ChartActivity extends Activity
         secondIndex = index;
 
         // Update names
-        firstName = Main.CURRENCY_NAMES[firstIndex];
-        secondName = Main.CURRENCY_NAMES[secondIndex];
+        firstName = Main.CURRENCY_CODES[firstIndex];
+        secondName = Main.CURRENCY_CODES[secondIndex];
 
         // Set custom text to updating, since this may take a few secs
         if (customView != null)
@@ -575,8 +575,8 @@ public class ChartActivity extends Activity
         }
 
         // Update names
-        firstName = Main.CURRENCY_NAMES[firstIndex];
-        secondName = Main.CURRENCY_NAMES[secondIndex];
+        firstName = Main.CURRENCY_CODES[firstIndex];
+        secondName = Main.CURRENCY_CODES[secondIndex];
 
         // Set custom text to updating, since this may take a few secs
         if (customView != null)

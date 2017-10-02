@@ -51,8 +51,8 @@ public class ChoiceDialog extends Activity
     private List<Integer> selectList;
 
     private List<Integer> flagList;
-    private List<String> nameList;
-    private List<Integer> longNameList;
+    private List<String> codeList;
+    private List<Integer> nameList;
 
     private ChoiceAdapter adapter;
 
@@ -92,12 +92,12 @@ public class ChoiceDialog extends Activity
 
         // Populate the lists
         flagList = Arrays.asList(Main.CURRENCY_FLAGS);
+        codeList = Arrays.asList(Main.CURRENCY_CODES);
         nameList = Arrays.asList(Main.CURRENCY_NAMES);
-        longNameList = Arrays.asList(Main.CURRENCY_LONGNAMES);
 
         // Create the adapter
         adapter = new ChoiceAdapter(this, R.layout.choice, flagList,
-                                    nameList, longNameList, selectList);
+                                    codeList, nameList, selectList);
 
         // Set the adapter
         if (listView != null)

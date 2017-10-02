@@ -125,6 +125,9 @@ public class Data
                         {
                             Double rate;
 
+                            if (fields[2].equals("---"))
+                                continue;
+
                             try
                             {
                                 rate = Double.parseDouble(fields[2]);
